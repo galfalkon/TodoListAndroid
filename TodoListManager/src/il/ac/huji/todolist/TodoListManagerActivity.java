@@ -10,7 +10,6 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -22,12 +21,12 @@ public class TodoListManagerActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_todo_list_manager);
-		items = new ArrayList<String>();
-		adapter = new AlternatingColorsArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
-		//adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
+		m_items = new ArrayList<String>();
+		m_adapter = new CustomArrayAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, m_items);
+		
 		// Set the list view for the tasks
 		ListView lstTodoItems = (ListView)findViewById(R.id.lstTodoItems);
-		lstTodoItems.setAdapter(adapter);
+		lstTodoItems.setAdapter(m_adapter);
 		registerForContextMenu(lstTodoItems);
 	}
 
@@ -52,7 +51,7 @@ public class TodoListManagerActivity extends Activity {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info)  {
 		super.onCreateContextMenu(menu, v, info);
-		menu.setHeaderTitle(items.get(((AdapterContextMenuInfo)info).position));
+		menu.setHeaderTitle(m_items.get(((AdapterContextMenuInfo)info).position));
 		getMenuInflater().inflate(R.menu.todo_list_context_menu, menu);
 	}
 	
@@ -61,8 +60,8 @@ public class TodoListManagerActivity extends Activity {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
 		switch (item.getItemId()) {
 		case R.id.menuItemDelete:
-			items.remove(info.position);
-			adapter.notifyDataSetChanged();
+			m_items.remove(info.position);
+			m_adapter.notifyDataSetChanged();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -71,17 +70,19 @@ public class TodoListManagerActivity extends Activity {
 	
 	private void handleAddItem() {
 		EditText edtNewItem = (EditText)findViewById(R.id.edtNewItem);
+		
+		// Verify input
 		if (edtNewItem.getText().toString().isEmpty()) {
-			Toast.makeText(TodoListManagerActivity.this, "Pleae enter a description for the new item", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), R.string.emptyInputToast, Toast.LENGTH_SHORT).show();
 			return;
 		} else {
-			items.add(edtNewItem.getText().toString());
+			m_items.add(edtNewItem.getText().toString());
 		}
 		
-		adapter.notifyDataSetChanged();
+		m_adapter.notifyDataSetChanged();
 		edtNewItem.setText("");
 	}
 	
-	private List<String> items;
-	private ArrayAdapter<String> adapter;
+	private List<String> m_items;
+	private CustomArrayAdapter m_adapter;
 }

@@ -3,7 +3,7 @@
 
     <string name="app_name">TodoList</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
 	<string name="menuItemAdd">Add</string>
 	<string name="menuItemDelete">Delete</string>
+	<string name="emptyInputToast">Pleae enter a description for the new item</string>
 </resources>
