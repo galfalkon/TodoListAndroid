@@ -5,7 +5,6 @@ import java.util.List;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.res.Configuration;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -31,11 +30,6 @@ public class TodoListManagerActivity extends Activity {
 		registerForContextMenu(lstTodoItems);
 	}
 	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
