@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -28,6 +29,11 @@ public class TodoListManagerActivity extends Activity {
 		ListView lstTodoItems = (ListView)findViewById(R.id.lstTodoItems);
 		lstTodoItems.setAdapter(m_adapter);
 		registerForContextMenu(lstTodoItems);
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
 	}
 
 	@Override
