@@ -24,10 +24,9 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f080003;
         public static final int edtNewItem=0x7f080000;
         public static final int lstTodoItems=0x7f080001;
-        public static final int menuItemAdd=0x7f080004;
+        public static final int menuItemAdd=0x7f080003;
         public static final int menuItemDelete=0x7f080002;
     }
     public static final class layout {
@@ -38,11 +37,10 @@ public final class R {
         public static final int todo_list_manager=0x7f070001;
     }
     public static final class string {
-        public static final int action_settings=0x7f050001;
         public static final int app_name=0x7f050000;
-        public static final int emptyInputToast=0x7f050004;
-        public static final int menuItemAdd=0x7f050002;
-        public static final int menuItemDelete=0x7f050003;
+        public static final int emptyInputToast=0x7f050003;
+        public static final int menuItemAdd=0x7f050001;
+        public static final int menuItemDelete=0x7f050002;
     }
     public static final class style {
         /** 
