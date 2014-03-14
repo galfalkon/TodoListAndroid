@@ -38,7 +38,7 @@
             android:text="@string/add_item_dialog_btnCancel" />
 
         <Button
-            android:id="@+id/btnOk"
+            android:id="@+id/btnOK"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

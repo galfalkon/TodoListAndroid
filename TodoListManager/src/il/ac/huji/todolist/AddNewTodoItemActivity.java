@@ -30,7 +30,7 @@ public class AddNewTodoItemActivity extends Activity {
 			}
 		});
 		
-		findViewById(R.id.btnOk).setOnClickListener(new OnClickListener() {
+		findViewById(R.id.btnOK).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				final String title = ((EditText)findViewById(R.id.edtNewItem)).getText().toString();
@@ -46,11 +46,14 @@ public class AddNewTodoItemActivity extends Activity {
 				Date dueDate = calendar.getTime();
 				// Put the values in an Intent instance and send it back to the caller
 				Intent result = new Intent();
-				result.putExtra("title", title);
-				result.putExtra("dueDate", dueDate);
+				result.putExtra(RESULT_KEY_TITLE, title);
+				result.putExtra(RESULT_KEY_DUE_DATE, dueDate);
 				setResult(RESULT_OK, result);
 				finish();
 			}
 		});
 	}
+	
+	public static final String RESULT_KEY_TITLE = "title";
+	public static final String RESULT_KEY_DUE_DATE = "dueDate";
 }

@@ -49,7 +49,7 @@ public class TodoListManagerActivity extends Activity {
 	    case R.id.menuItemAdd:
 	    	// Start a dialog for prompting the user for the new item information
 	    	Intent intent = new Intent(getApplicationContext(), AddNewTodoItemActivity.class);
-			startActivityForResult(intent, ADD_ITEM_REQ_CODE);
+			startActivityForResult(intent, REQ_CODE_ADD_ITEM);
 	    	return true;
         default:
             return super.onOptionsItemSelected(item);
@@ -97,19 +97,18 @@ public class TodoListManagerActivity extends Activity {
 	
 	@Override
 	protected void onActivityResult(int reqCode, int resCode, Intent data) {
-		// Sanity check - the request code should be 0
-		if (reqCode != ADD_ITEM_REQ_CODE) {
-			return;
-		}
-		
-		switch (resCode) {
-		case RESULT_OK:
-			final String title = data.getStringExtra("title");
-			final Date dueDate = (Date)data.getSerializableExtra("dueDate");
-			m_items.add(new Pair<String, Date>(title, dueDate));
-			m_adapter.notifyDataSetChanged();
-			break;
-		case RESULT_CANCELED:
+		switch (reqCode) {
+		case REQ_CODE_ADD_ITEM:
+			switch (resCode) {
+			case RESULT_OK:
+				final String title = data.getStringExtra(AddNewTodoItemActivity.RESULT_KEY_TITLE);
+				final Date dueDate = (Date)data.getSerializableExtra(AddNewTodoItemActivity.RESULT_KEY_DUE_DATE);
+				m_items.add(new Pair<String, Date>(title, dueDate));
+				m_adapter.notifyDataSetChanged();
+				break;
+			case RESULT_CANCELED:
+				break;
+			}
 			break;
 		}
 	}
@@ -117,5 +116,5 @@ public class TodoListManagerActivity extends Activity {
 	private TodoListArrayAdapter m_adapter;
 	private List<Pair<String, Date>> m_items;
 	
-	private final static int ADD_ITEM_REQ_CODE = 0;
+	private final static int REQ_CODE_ADD_ITEM = 0;
 }

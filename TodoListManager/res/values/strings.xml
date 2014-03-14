@@ -3,7 +3,7 @@
 
     <string name="app_name">TodoList</string>
 	<string name="menuItemAdd">Add</string>
-	<string name="menuItemDelete">Delete</string>
+	<string name="menuItemDelete">Delete Item</string>
 	<string name="emptyInputToast">Please enter a description for the new item</string>
 	<string name="menuItemCall">Call</string>
 	<string name="add_item_dialog_btnOk">OK</string>
