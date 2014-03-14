@@ -27,7 +27,8 @@
         <activity
             android:name="il.ac.huji.todolist.AddNewTodoItemActivity"
             android:theme="@android:style/Theme.Dialog"
-            android:label="@string/add_new_item_dialog_title">
+            android:label="@string/add_new_item_dialog_title"
+            android:screenOrientation="portrait">
             
         </activity>
     </application>
