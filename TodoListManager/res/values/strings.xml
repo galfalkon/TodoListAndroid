@@ -5,4 +5,9 @@
 	<string name="menuItemAdd">Add</string>
 	<string name="menuItemDelete">Delete</string>
 	<string name="emptyInputToast">Please enter a description for the new item</string>
+	<string name="menuItemCall">Call</string>
+	<string name="add_item_dialog_btnOk">OK</string>
+	<string name="add_item_dialog_btnCancel">Cancel</string>
+	<string name="add_new_item_dialog_title">Add New Item</string>
+	<string name="call_item_lowercase_prefix">call\u0020</string>
 </resources>

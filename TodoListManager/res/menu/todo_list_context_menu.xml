@@ -4,4 +4,8 @@
 	          android:title="@string/menuItemDelete"
 	          android:showAsAction="never"/>
 	 
+	 <item android:id="@+id/menuItemCall"
+	          android:title="@string/menuItemCall"
+	          android:showAsAction="never"/>
+	 
 </menu>

@@ -9,19 +9,10 @@
     tools:context=".TodoListManagerActivity"
     android:orientation="vertical" >
 
-    <EditText
-        android:id="@+id/edtNewItem"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/editbox_background"
-        android:ems="10"
-        android:inputType="text" />
-
     <ListView
         android:id="@+id/lstTodoItems"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:divider="@android:color/transparent"
         android:dividerHeight="5dp" >
     </ListView>
