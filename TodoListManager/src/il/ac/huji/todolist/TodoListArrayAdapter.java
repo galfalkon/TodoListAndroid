@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.format.DateUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +39,7 @@ public class TodoListArrayAdapter extends ArrayAdapter<Pair<String, Date>> {
 		dueDateText.setText(simeplDateFormat.format(dueDate));
 		
 		// Set the text views colors
-		if (dueDate.before(new Date())) {
+		if (dueDate.before(new Date()) && !DateUtils.isToday(dueDate.getTime())) {
 			dueDateText.setTextColor(OVERDUE_ITEM_COLOR);
 			titleText.setTextColor(OVERDUE_ITEM_COLOR);
 		} else {
