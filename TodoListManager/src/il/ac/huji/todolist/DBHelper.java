@@ -30,7 +30,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final int DB_VERSION = 1;
 	
 	public static class TodoTable {
-		public static final String TABLE_NAME = "todo_table";
+		public static final String TABLE_NAME = "todo";
 		public static final String COL_ID = "_id";
 		public static final String COL_TITLE = "title";
 		public static final String COL_DUE_DATE = "due";
