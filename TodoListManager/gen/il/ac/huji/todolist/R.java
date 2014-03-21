@@ -54,6 +54,8 @@ public final class R {
         public static final int menuItemAdd=0x7f050001;
         public static final int menuItemCall=0x7f050004;
         public static final int menuItemDelete=0x7f050002;
+        public static final int parse_application_id=0x7f050009;
+        public static final int parse_client_key=0x7f05000a;
     }
     public static final class style {
         /** 

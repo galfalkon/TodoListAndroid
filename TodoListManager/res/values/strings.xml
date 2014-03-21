@@ -10,4 +10,6 @@
 	<string name="add_item_dialog_btnCancel">Cancel</string>
 	<string name="add_new_item_dialog_title">Add New Item</string>
 	<string name="call_item_lowercase_prefix">call\u0020</string>
+	<string name="parse_application_id">xucKs0Mgnm8BJpFD2RgIgd9j8gNIsnT4fyAwtI4d</string>
+	<string name="parse_client_key">Y1uAESAFuObB8xvbliojMrzS8Na1LL1u4bmY774p</string>
 </resources>

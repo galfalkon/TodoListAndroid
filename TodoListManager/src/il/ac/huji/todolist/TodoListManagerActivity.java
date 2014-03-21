@@ -1,7 +1,5 @@
 package il.ac.huji.todolist;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -11,6 +9,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -18,8 +19,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.TextView;
+
+import com.parse.Parse;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 public class TodoListManagerActivity extends Activity {
 
@@ -27,13 +32,17 @@ public class TodoListManagerActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_todo_list_manager);
-		m_items = new ArrayList<Pair<String,Date>>();
-		m_adapter = new TodoListArrayAdapter(getApplicationContext(), R.layout.todo_list_row, m_items);
+		m_adapter = getAdapter();
 		
 		// Set the list view for the tasks
 		ListView lstTodoItems = (ListView)findViewById(R.id.lstTodoItems);
 		lstTodoItems.setAdapter(m_adapter);
 		registerForContextMenu(lstTodoItems);
+		
+		// Initialize parse
+		Resources resources = getResources();
+		Parse.initialize(getApplicationContext(), resources.getString(R.string.parse_application_id), resources.getString(R.string.parse_client_key));
+		ParseUser.enableAutomaticUser();
 	}
 
 	@Override
@@ -76,8 +85,8 @@ public class TodoListManagerActivity extends Activity {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
 		switch (item.getItemId()) {
 		case R.id.menuItemDelete:
-			m_items.remove(info.position);
-			m_adapter.notifyDataSetChanged();
+			DBHelper.TodoTable.deleteItem(getApplicationContext(), info.id);
+			m_adapter.changeCursor(getCursorToList());
 			return true;
 		case R.id.menuItemCall:
 			final String title = ((TextView)info.targetView.findViewById(R.id.txtTodoTitle)).getText().toString();
@@ -93,8 +102,6 @@ public class TodoListManagerActivity extends Activity {
 		}
 	}
 	
-	
-	
 	@Override
 	protected void onActivityResult(int reqCode, int resCode, Intent data) {
 		switch (reqCode) {
@@ -103,18 +110,43 @@ public class TodoListManagerActivity extends Activity {
 			case RESULT_OK:
 				final String title = data.getStringExtra(AddNewTodoItemActivity.RESULT_KEY_TITLE);
 				final Date dueDate = (Date)data.getSerializableExtra(AddNewTodoItemActivity.RESULT_KEY_DUE_DATE);
-				m_items.add(new Pair<String, Date>(title, dueDate));
-				m_adapter.notifyDataSetChanged();
+				DBHelper.TodoTable.insertItem(getApplicationContext(), new Pair<String, Date>(title, dueDate));
+				
+				// Save object to backend
+				ParseObject todoObject = new ParseObject(ParseConstants.CLASS_NAME);
+				todoObject.put(ParseConstants.KEY_TITLE, title);
+				todoObject.put(ParseConstants.KEY_DUE_DATE, dueDate);
+				todoObject.saveInBackground();
+				
+				// Update cursor
+				m_adapter.changeCursor(getCursorToList());
 				break;
 			case RESULT_CANCELED:
 				break;
 			}
-			break;
 		}
 	}
 	
-	private TodoListArrayAdapter m_adapter;
-	private List<Pair<String, Date>> m_items;
+	private TodoListCursorAdapter getAdapter() {
+		Cursor c = getCursorToList();
+		String[] from = new String[] {DBHelper.TodoTable.COL_TITLE, DBHelper.TodoTable.COL_DUE_DATE};
+		int[] to = new int[] {R.id.txtTodoTitle, R.id.txtTodoDueDate};
+		return new TodoListCursorAdapter(getApplicationContext(), R.layout.todo_list_row, c, from, to, 0);
+	}
+	
+	private Cursor getCursorToList() {
+		DBHelper helper = new DBHelper(getApplicationContext());
+		SQLiteDatabase db = helper.getReadableDatabase();
+		// TODO: This call demand at least API 16. Can we assume it?
+		return db.query(false, DBHelper.TodoTable.TABLE_NAME, null, null, null, null, null, null, null, null);
+	}
+	
+	private TodoListCursorAdapter m_adapter;
 	
 	private final static int REQ_CODE_ADD_ITEM = 0;
+	private static class ParseConstants {
+		public final static String CLASS_NAME = "todo"; 
+		public final static String KEY_TITLE = "title";
+		public final static String KEY_DUE_DATE = "due";
+	}
 }
