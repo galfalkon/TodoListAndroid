@@ -23,7 +23,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TextView;
 
 import com.parse.Parse;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 public class TodoListManagerActivity extends Activity {
@@ -85,7 +84,15 @@ public class TodoListManagerActivity extends Activity {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
 		switch (item.getItemId()) {
 		case R.id.menuItemDelete:
+			// Get deleted item info
+			String deletedItemTitle = ((TextView)info.targetView.findViewById(R.id.txtTodoTitle)).getText().toString();
+			String deletedItemDueDate = ((TextView)info.targetView.findViewById(R.id.txtTodoDueDate)).getText().toString();
+			
+			// Delete the item from DB and from parse
 			DBHelper.TodoTable.deleteItem(getApplicationContext(), info.id);
+			ParseHelper.deleteItem(new Pair<String, String>(deletedItemTitle, deletedItemDueDate));
+			
+			// Update adapter
 			m_adapter.changeCursor(getCursorToList());
 			return true;
 		case R.id.menuItemCall:
@@ -110,13 +117,9 @@ public class TodoListManagerActivity extends Activity {
 			case RESULT_OK:
 				final String title = data.getStringExtra(AddNewTodoItemActivity.RESULT_KEY_TITLE);
 				final Date dueDate = (Date)data.getSerializableExtra(AddNewTodoItemActivity.RESULT_KEY_DUE_DATE);
-				DBHelper.TodoTable.insertItem(getApplicationContext(), new Pair<String, Date>(title, dueDate));
-				
-				// Save object to backend
-				ParseObject todoObject = new ParseObject(ParseConstants.CLASS_NAME);
-				todoObject.put(ParseConstants.KEY_TITLE, title);
-				todoObject.put(ParseConstants.KEY_DUE_DATE, dueDate);
-				todoObject.saveInBackground();
+				Pair<String, Date> itemPair = new Pair<String, Date>(title, dueDate);
+				DBHelper.TodoTable.insertItem(getApplicationContext(), itemPair);
+				ParseHelper.addItem(itemPair);
 				
 				// Update cursor
 				m_adapter.changeCursor(getCursorToList());
@@ -144,9 +147,4 @@ public class TodoListManagerActivity extends Activity {
 	private TodoListCursorAdapter m_adapter;
 	
 	private final static int REQ_CODE_ADD_ITEM = 0;
-	private static class ParseConstants {
-		public final static String CLASS_NAME = "todo"; 
-		public final static String KEY_TITLE = "title";
-		public final static String KEY_DUE_DATE = "due";
-	}
 }

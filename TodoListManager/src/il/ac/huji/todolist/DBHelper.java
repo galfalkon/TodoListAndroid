@@ -40,7 +40,6 @@ public class DBHelper extends SQLiteOpenHelper {
 			SQLiteDatabase db = helper.getWritableDatabase();
 			ContentValues itemValues = new ContentValues();
 			itemValues.put(COL_TITLE, item.first);
-			// TODO Check if that  was he meant with long
 			itemValues.put(COL_DUE_DATE, item.second.getTime());
 			
 			db.insert(TABLE_NAME, null, itemValues);
