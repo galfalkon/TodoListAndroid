@@ -4,6 +4,7 @@ import java.util.Date;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Pair;
@@ -24,8 +25,15 @@ public class DBHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		db.execSQL("drop table if exists " + TodoTable.TABLE_NAME);
+		onCreate(db);
 	}
 	
+	public static void initialize(Context context) {
+		helperInstance = new DBHelper(context);
+	}
+	
+	public static DBHelper helperInstance;
 	private static final String DB_NAME = "todo_db";
 	private static final int DB_VERSION = 1;
 	
@@ -36,19 +44,19 @@ public class DBHelper extends SQLiteOpenHelper {
 		public static final String COL_DUE_DATE = "due";
 		
 		public static void insertItem(Context context, Pair<String, Date> item) {
-			DBHelper helper = new DBHelper(context);
-			SQLiteDatabase db = helper.getWritableDatabase();
 			ContentValues itemValues = new ContentValues();
 			itemValues.put(COL_TITLE, item.first);
 			itemValues.put(COL_DUE_DATE, item.second.getTime());
 			
-			db.insert(TABLE_NAME, null, itemValues);
+			helperInstance.getWritableDatabase().insert(TABLE_NAME, null, itemValues);
 		}
 		
 		public static void deleteItem(Context context, long id) {
-			DBHelper helper = new DBHelper(context);
-			SQLiteDatabase db = helper.getWritableDatabase();
-			db.delete(TABLE_NAME, COL_ID + " = ?", new String[] {String.valueOf(id)});
+			helperInstance.getWritableDatabase().delete(TABLE_NAME, COL_ID + " = ?", new String[] {String.valueOf(id)});
+		}
+		
+		public static Cursor getCursorToAllRecords() {
+			return helperInstance.getReadableDatabase().query(DBHelper.TodoTable.TABLE_NAME, null, null, null, null, null, null);
 		}
 	}
 }

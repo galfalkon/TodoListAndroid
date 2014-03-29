@@ -11,7 +11,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -30,6 +29,10 @@ public class TodoListManagerActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// Initialize DB
+		DBHelper.initialize(getApplicationContext());
+		
 		setContentView(R.layout.activity_todo_list_manager);
 		m_adapter = getAdapter();
 		
@@ -93,7 +96,7 @@ public class TodoListManagerActivity extends Activity {
 			ParseHelper.deleteItem(new Pair<String, String>(deletedItemTitle, deletedItemDueDate));
 			
 			// Update adapter
-			m_adapter.changeCursor(getCursorToList());
+			m_adapter.changeCursor(DBHelper.TodoTable.getCursorToAllRecords());
 			return true;
 		case R.id.menuItemCall:
 			final String title = ((TextView)info.targetView.findViewById(R.id.txtTodoTitle)).getText().toString();
@@ -122,7 +125,7 @@ public class TodoListManagerActivity extends Activity {
 				ParseHelper.addItem(itemPair);
 				
 				// Update cursor
-				m_adapter.changeCursor(getCursorToList());
+				m_adapter.changeCursor(DBHelper.TodoTable.getCursorToAllRecords());
 				break;
 			case RESULT_CANCELED:
 				break;
@@ -130,18 +133,17 @@ public class TodoListManagerActivity extends Activity {
 		}
 	}
 	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		DBHelper.helperInstance.close();
+	}
+	
 	private TodoListCursorAdapter getAdapter() {
-		Cursor c = getCursorToList();
+		Cursor c = DBHelper.TodoTable.getCursorToAllRecords();
 		String[] from = new String[] {DBHelper.TodoTable.COL_TITLE, DBHelper.TodoTable.COL_DUE_DATE};
 		int[] to = new int[] {R.id.txtTodoTitle, R.id.txtTodoDueDate};
 		return new TodoListCursorAdapter(getApplicationContext(), R.layout.todo_list_row, c, from, to, 0);
-	}
-	
-	private Cursor getCursorToList() {
-		DBHelper helper = new DBHelper(getApplicationContext());
-		SQLiteDatabase db = helper.getReadableDatabase();
-		// TODO: This call demand at least API 16. Can we assume it?
-		return db.query(false, DBHelper.TodoTable.TABLE_NAME, null, null, null, null, null, null, null, null);
 	}
 	
 	private TodoListCursorAdapter m_adapter;
