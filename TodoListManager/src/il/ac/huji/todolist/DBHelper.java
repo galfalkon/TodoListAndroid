@@ -1,13 +1,10 @@
 package il.ac.huji.todolist;
 
-import java.util.Date;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Pair;
 
 public class DBHelper extends SQLiteOpenHelper {
 	public DBHelper(Context context) {
@@ -43,10 +40,10 @@ public class DBHelper extends SQLiteOpenHelper {
 		public static final String COL_TITLE = "title";
 		public static final String COL_DUE_DATE = "due";
 		
-		public static void insertItem(Context context, Pair<String, Date> item) {
+		public static void insertItem(TodoItem item) {
 			ContentValues itemValues = new ContentValues();
-			itemValues.put(COL_TITLE, item.first);
-			itemValues.put(COL_DUE_DATE, item.second.getTime());
+			itemValues.put(COL_TITLE, item.getTitle());
+			itemValues.put(COL_DUE_DATE, item.getDueDate().getTime());
 			
 			helperInstance.getWritableDatabase().insert(TABLE_NAME, null, itemValues);
 		}

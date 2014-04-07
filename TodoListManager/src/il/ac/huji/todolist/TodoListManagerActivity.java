@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -92,11 +93,10 @@ public class TodoListManagerActivity extends Activity {
 			String deletedItemDueDate = ((TextView)info.targetView.findViewById(R.id.txtTodoDueDate)).getText().toString();
 			
 			// Delete the item from DB and from parse
-			DBHelper.TodoTable.deleteItem(getApplicationContext(), info.id);
+			DeleteTodoItemsAsyncTask deleteItemAsyncTask = new DeleteTodoItemsAsyncTask();
+			deleteItemAsyncTask.execute(info.id);
 			ParseHelper.deleteItem(new Pair<String, String>(deletedItemTitle, deletedItemDueDate));
 			
-			// Update adapter
-			m_adapter.changeCursor(DBHelper.TodoTable.getCursorToAllRecords());
 			return true;
 		case R.id.menuItemCall:
 			final String title = ((TextView)info.targetView.findViewById(R.id.txtTodoTitle)).getText().toString();
@@ -120,12 +120,11 @@ public class TodoListManagerActivity extends Activity {
 			case RESULT_OK:
 				final String title = data.getStringExtra(AddNewTodoItemActivity.RESULT_KEY_TITLE);
 				final Date dueDate = (Date)data.getSerializableExtra(AddNewTodoItemActivity.RESULT_KEY_DUE_DATE);
-				Pair<String, Date> itemPair = new Pair<String, Date>(title, dueDate);
-				DBHelper.TodoTable.insertItem(getApplicationContext(), itemPair);
-				ParseHelper.addItem(itemPair);
+				TodoItem item = new TodoItem(title, dueDate);
+				AddTodoItemsAsyncTask addItemAsyncTask = new AddTodoItemsAsyncTask();
+				addItemAsyncTask.execute(item);
+				ParseHelper.addItem(item);
 				
-				// Update cursor
-				m_adapter.changeCursor(DBHelper.TodoTable.getCursorToAllRecords());
 				break;
 			case RESULT_CANCELED:
 				break;
@@ -144,6 +143,68 @@ public class TodoListManagerActivity extends Activity {
 		String[] from = new String[] {DBHelper.TodoTable.COL_TITLE, DBHelper.TodoTable.COL_DUE_DATE};
 		int[] to = new int[] {R.id.txtTodoTitle, R.id.txtTodoDueDate};
 		return new TodoListCursorAdapter(getApplicationContext(), R.layout.todo_list_row, c, from, to, 0);
+	}
+	
+	private class AddTodoItemsAsyncTask extends AsyncTask<TodoItem, Cursor, Void> {
+
+		@Override
+		protected Void doInBackground(TodoItem... params) {
+			int chunkCounter = 0;
+			for (TodoItem item : params) {
+				chunkCounter++;
+				DBHelper.TodoTable.insertItem(item);
+				if (chunkCounter == ITEMS_CHUNKES_SIZE) {
+					publishProgress(DBHelper.TodoTable.getCursorToAllRecords());
+					chunkCounter = 0;
+				}
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onProgressUpdate(Cursor... values) {
+			super.onProgressUpdate(values);
+			m_adapter.changeCursor(values[0]);
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			m_adapter.changeCursor(DBHelper.TodoTable.getCursorToAllRecords());
+		}
+		
+		private static final int ITEMS_CHUNKES_SIZE = 5;
+	}
+	
+	private class DeleteTodoItemsAsyncTask extends AsyncTask<Long, Cursor, Void> {
+
+		@Override
+		protected Void doInBackground(Long... params) {
+			int chunkCounter = 0;
+			for (Long itemId : params) {
+				chunkCounter++;
+				DBHelper.TodoTable.deleteItem(getApplicationContext(), itemId);
+				if (chunkCounter == ITEMS_CHUNKES_SIZE) {
+					publishProgress(DBHelper.TodoTable.getCursorToAllRecords());
+					chunkCounter = 0;
+				}
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onProgressUpdate(Cursor... values) {
+			super.onProgressUpdate(values);
+			m_adapter.changeCursor(values[0]);
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			m_adapter.changeCursor(DBHelper.TodoTable.getCursorToAllRecords());
+		}
+		
+		private static final int ITEMS_CHUNKES_SIZE = 5;
 	}
 	
 	private TodoListCursorAdapter m_adapter;

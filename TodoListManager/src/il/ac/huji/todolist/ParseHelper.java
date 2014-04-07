@@ -1,7 +1,6 @@
 package il.ac.huji.todolist;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 import com.parse.GetCallback;
@@ -14,11 +13,11 @@ import android.util.Pair;
 public class ParseHelper {
 	
 	// Save the given object to back end
-	public static void addItem(Pair<String, Date> itemPair) {
+	public static void addItem(TodoItem item) {
 		final SimpleDateFormat simeplDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
 		ParseObject todoObject = new ParseObject(Constants.CLASS_NAME);
-		todoObject.put(Constants.KEY_TITLE, itemPair.first);
-		todoObject.put(Constants.KEY_DUE_DATE, simeplDateFormat.format(itemPair.second));
+		todoObject.put(Constants.KEY_TITLE, item.getTitle());
+		todoObject.put(Constants.KEY_DUE_DATE, simeplDateFormat.format(item.getDueDate()));
 		todoObject.saveInBackground();
 	}
 	
