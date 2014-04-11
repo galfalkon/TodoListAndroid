@@ -3,6 +3,7 @@ package il.ac.huji.todolist;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -54,6 +55,14 @@ public class DBHelper extends SQLiteOpenHelper {
 		
 		public static Cursor getCursorToAllRecords() {
 			return helperInstance.getReadableDatabase().query(DBHelper.TodoTable.TABLE_NAME, null, null, null, null, null, null);
+		}
+		
+		public static Cursor getLimitedCursorToRecordes(int limit) {
+			return helperInstance.getReadableDatabase().query(DBHelper.TodoTable.TABLE_NAME, null, null, null, null, null, null, String.valueOf(limit));
+		}
+		
+		public static long getNumOfRecords() {
+			return DatabaseUtils.queryNumEntries(helperInstance.getReadableDatabase(), DBHelper.TodoTable.TABLE_NAME);
 		}
 	}
 }

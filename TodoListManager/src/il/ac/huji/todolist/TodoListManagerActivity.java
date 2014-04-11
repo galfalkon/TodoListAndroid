@@ -35,8 +35,13 @@ public class TodoListManagerActivity extends Activity {
 		DBHelper.initialize(getApplicationContext());
 		
 		setContentView(R.layout.activity_todo_list_manager);
-		m_adapter = getAdapter();
-		
+
+		// Set adapter
+		String[] from = new String[] {DBHelper.TodoTable.COL_TITLE, DBHelper.TodoTable.COL_DUE_DATE};
+		int[] to = new int[] {R.id.txtTodoTitle, R.id.txtTodoDueDate};
+		m_adapter = new TodoListCursorAdapter(getApplicationContext(), R.layout.todo_list_row, null, from, to, 0);
+		new LoadTodoItemsFromDBAsyncTask().execute();
+				
 		// Set the list view for the tasks
 		ListView lstTodoItems = (ListView)findViewById(R.id.lstTodoItems);
 		lstTodoItems.setAdapter(m_adapter);
@@ -93,8 +98,7 @@ public class TodoListManagerActivity extends Activity {
 			String deletedItemDueDate = ((TextView)info.targetView.findViewById(R.id.txtTodoDueDate)).getText().toString();
 			
 			// Delete the item from DB and from parse
-			DeleteTodoItemsAsyncTask deleteItemAsyncTask = new DeleteTodoItemsAsyncTask();
-			deleteItemAsyncTask.execute(info.id);
+			new DeleteTodoItemsAsyncTask().execute(info.id);
 			ParseHelper.deleteItem(new Pair<String, String>(deletedItemTitle, deletedItemDueDate));
 			
 			return true;
@@ -121,8 +125,7 @@ public class TodoListManagerActivity extends Activity {
 				final String title = data.getStringExtra(AddNewTodoItemActivity.RESULT_KEY_TITLE);
 				final Date dueDate = (Date)data.getSerializableExtra(AddNewTodoItemActivity.RESULT_KEY_DUE_DATE);
 				TodoItem item = new TodoItem(title, dueDate);
-				AddTodoItemsAsyncTask addItemAsyncTask = new AddTodoItemsAsyncTask();
-				addItemAsyncTask.execute(item);
+				new AddTodoItemsAsyncTask().execute(item);
 				ParseHelper.addItem(item);
 				
 				break;
@@ -136,13 +139,6 @@ public class TodoListManagerActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 		DBHelper.helperInstance.close();
-	}
-	
-	private TodoListCursorAdapter getAdapter() {
-		Cursor c = DBHelper.TodoTable.getCursorToAllRecords();
-		String[] from = new String[] {DBHelper.TodoTable.COL_TITLE, DBHelper.TodoTable.COL_DUE_DATE};
-		int[] to = new int[] {R.id.txtTodoTitle, R.id.txtTodoDueDate};
-		return new TodoListCursorAdapter(getApplicationContext(), R.layout.todo_list_row, c, from, to, 0);
 	}
 	
 	private class AddTodoItemsAsyncTask extends AsyncTask<TodoItem, Cursor, Void> {
@@ -205,6 +201,33 @@ public class TodoListManagerActivity extends Activity {
 		}
 		
 		private static final int ITEMS_CHUNKES_SIZE = 5;
+	}
+	
+	private class LoadTodoItemsFromDBAsyncTask extends AsyncTask<Void, Cursor, Void> {
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			long numOfRecords = DBHelper.TodoTable.getNumOfRecords();
+			int limit = ITEMS_CHUNKES_SIZE;
+			while (limit < numOfRecords) {
+				publishProgress(DBHelper.TodoTable.getLimitedCursorToRecordes(limit));
+				limit += ITEMS_CHUNKES_SIZE;
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onProgressUpdate(Cursor... values) {
+			super.onProgressUpdate(values);
+			m_adapter.changeCursor(values[0]);
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			m_adapter.changeCursor(DBHelper.TodoTable.getCursorToAllRecords());
+		}
+		
+		private static final int ITEMS_CHUNKES_SIZE = 1; 
 	}
 	
 	private TodoListCursorAdapter m_adapter;
