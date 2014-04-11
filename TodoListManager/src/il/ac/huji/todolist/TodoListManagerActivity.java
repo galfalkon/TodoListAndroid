@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -21,9 +20,6 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TextView;
-
-import com.parse.Parse;
-import com.parse.ParseUser;
 
 public class TodoListManagerActivity extends Activity {
 
@@ -46,11 +42,6 @@ public class TodoListManagerActivity extends Activity {
 		ListView lstTodoItems = (ListView)findViewById(R.id.lstTodoItems);
 		lstTodoItems.setAdapter(m_adapter);
 		registerForContextMenu(lstTodoItems);
-		
-		// Initialize parse
-		Resources resources = getResources();
-		Parse.initialize(getApplicationContext(), resources.getString(R.string.parse_application_id), resources.getString(R.string.parse_client_key));
-		ParseUser.enableAutomaticUser();
 	}
 
 	@Override
@@ -93,13 +84,8 @@ public class TodoListManagerActivity extends Activity {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
 		switch (item.getItemId()) {
 		case R.id.menuItemDelete:
-			// Get deleted item info
-			String deletedItemTitle = ((TextView)info.targetView.findViewById(R.id.txtTodoTitle)).getText().toString();
-			String deletedItemDueDate = ((TextView)info.targetView.findViewById(R.id.txtTodoDueDate)).getText().toString();
-			
-			// Delete the item from DB and from parse
+			// Delete the item from DB
 			new DeleteTodoItemsAsyncTask().execute(info.id);
-			ParseHelper.deleteItem(new Pair<String, String>(deletedItemTitle, deletedItemDueDate));
 			
 			return true;
 		case R.id.menuItemCall:
@@ -126,7 +112,6 @@ public class TodoListManagerActivity extends Activity {
 				final Date dueDate = (Date)data.getSerializableExtra(AddNewTodoItemActivity.RESULT_KEY_DUE_DATE);
 				TodoItem item = new TodoItem(title, dueDate);
 				new AddTodoItemsAsyncTask().execute(item);
-				ParseHelper.addItem(item);
 				
 				break;
 			case RESULT_CANCELED:
